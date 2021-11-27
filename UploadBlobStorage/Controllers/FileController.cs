@@ -1,13 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System;
 using System.Collections.Generic;
+
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
+using UploadBlobStorage.ViewModel;
 
 namespace UploadBlobStorage.Controllers
 {
@@ -15,8 +17,22 @@ namespace UploadBlobStorage.Controllers
     [ApiController]
     public class FileController : ControllerBase
     {
+        private Container _container;
+        // ADD THIS PART TO YOUR CODE
+        // The Azure Cosmos DB endpoint for running this sample.
+        private static readonly string EndpointUri = "https://devopsapresentacao.documents.azure.com:443/";
+        // The primary key for the Azure Cosmos account.
+        private static readonly string PrimaryKey = "LTkL9GjDS5ZCIX8abujMNNrmEmKWlHhEWIRZWeKrJ3xSHZ02NmWtzSQiEtKg7PrIm4dFmMAQkOgIegQU8HGgvA==";
+        // The Cosmos client instance
+        private CosmosClient cosmosClient;
+        // The database we will create
+        private Database database;
+        // The name of the database and container we will create
+        private string databaseId = "ImagensDatabase";
+        private string containerId = "ImagensContainer";
         private readonly IConfiguration _configuration;
-        public FileController(IConfiguration configuration)
+        public FileController(IConfiguration configuration
+             )
         {
             _configuration = configuration;
         }
@@ -41,10 +57,50 @@ namespace UploadBlobStorage.Controllers
                 {
                     await blockBlob.UploadFromStreamAsync(data);
                 }
+               
+                try
+                {
+                    var item = new ImagemViewModel()
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        PathOriginal = $"https://blobdevopsapresentacao.blob.core.windows.net/imagens/{systemFileName}",
+                        PathThumbs = $"https://blobdevopsapresentacao.blob.core.windows.net/thumbs/{systemFileName}",
+                        PathResize = $"https://blobdevopsapresentacao.blob.core.windows.net/imagens-resize/{systemFileName}",
+                        Date = DateTime.Now,
+                        ImagemId = Guid.NewGuid(),
+                    };
+                    await AddItemAsync(item);
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest("Erro ao salvar no cosmos : " + ex.Message);
+                }
+               
             }
-            
+
             return Ok("Files Uploaded Successfully");
         }
+
+        [NonAction]
+        public async Task AddItemAsync(ImagemViewModel item)
+        {
+            try
+            {
+
+                Microsoft.Azure.Cosmos.CosmosClient client = new Microsoft.Azure.Cosmos.CosmosClient("https://devopsapresentacao.documents.azure.com:443/", "LTkL9GjDS5ZCIX8abujMNNrmEmKWlHhEWIRZWeKrJ3xSHZ02NmWtzSQiEtKg7PrIm4dFmMAQkOgIegQU8HGgvA==");
+                this._container = client.GetContainer(databaseId, containerId);
+                await this._container.CreateItemAsync<ImagemViewModel>(item, new PartitionKey(item.Id));
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+        }
+
 
         [HttpPost(nameof(DownloadFile))]
         public async Task<IActionResult> DownloadFile(string fileName)
@@ -75,5 +131,31 @@ namespace UploadBlobStorage.Controllers
             await blob.DeleteIfExistsAsync();
             return Ok("File Deleted");
         }
+
+        //[HttpGet("teste")]
+        //public async Task<IActionResult> Teste()
+        //{
+        //    try
+        //    {
+        //        var systemFileName = "nome1.jpg";
+        //        var item = new ImagemViewModel()
+        //        {
+        //            Id = Guid.NewGuid().ToString(),
+        //            PathOriginal = $"https://blobdevopsapresentacao.blob.core.windows.net/imagens/{systemFileName}",
+        //            PathThumbs = $"https://blobdevopsapresentacao.blob.core.windows.net/thumbs/{systemFileName}",
+        //            PathResize = $"https://blobdevopsapresentacao.blob.core.windows.net/imagens-resize/{systemFileName}",
+        //            Date = DateTime.Now,
+        //            ImagemId = Guid.NewGuid(),
+        //        };
+        //        await AddItemAsync(item);
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        return BadRequest("Erro ao salvar no cosmos : " + ex.Message);
+        //    }
+
+        //    return Ok("chegou no teste");
+        //}
     }
 }

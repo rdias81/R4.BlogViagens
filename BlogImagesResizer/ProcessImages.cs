@@ -14,9 +14,9 @@ namespace BlogImagesResizer
     public static class ProcessImages
     {
         [FunctionName("ProcessImages")]
-        public static void Run([BlobTrigger("normal/{name}")] Stream image,
+        public static void Run([BlobTrigger("imagens/{name}")] Stream image,
             [Blob("thumbs/{name}", FileAccess.Write)] Stream thumbContainer,
-            [Blob("optimized/{name}", FileAccess.Write)] Stream optimizedContainer,
+            [Blob("imagens-resize/{name}", FileAccess.Write)] Stream optimizedContainer,
             ILogger log)
         {
             IImageFormat format;

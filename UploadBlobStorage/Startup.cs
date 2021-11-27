@@ -1,16 +1,9 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace UploadBlobStorage
 {
@@ -30,7 +23,7 @@ namespace UploadBlobStorage
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "UploadBlobStorage", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "R4 - BLOG VIAGENS", Version = "v1" });
             });
         }
 
@@ -41,7 +34,12 @@ namespace UploadBlobStorage
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "UploadBlobStorage v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "R4 - BLOG VIAGENS v1"));
+            }
+            else 
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "R4 - BLOG VIAGENS v1"));
             }
 
             app.UseHttpsRedirection();
