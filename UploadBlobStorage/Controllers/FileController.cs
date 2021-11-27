@@ -17,13 +17,10 @@ namespace UploadBlobStorage.Controllers
     [ApiController]
     public class FileController : ControllerBase
     {
-        private Container _container;
-        // ADD THIS PART TO YOUR CODE
-        // The Azure Cosmos DB endpoint for running this sample.
+        private Container _container;       
         private static readonly string EndpointUri = "https://devopsapresentacao.documents.azure.com:443/";
         // The primary key for the Azure Cosmos account.
-        private static readonly string PrimaryKey = "LTkL9GjDS5ZCIX8abujMNNrmEmKWlHhEWIRZWeKrJ3xSHZ02NmWtzSQiEtKg7PrIm4dFmMAQkOgIegQU8HGgvA==";
-        // The Cosmos client instance
+        private static readonly string PrimaryKey = "LTkL9GjDS5ZCIX8abujMNNrmEmKWlHhEWIRZWeKrJ3xSHZ02NmWtzSQiEtKg7PrIm4dFmMAQkOgIegQU8HGgvA==";       
         private CosmosClient cosmosClient;
         // The database we will create
         private Database database;
